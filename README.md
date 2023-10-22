@@ -25,9 +25,9 @@
 | ![C](https://img.shields.io/badge/-C-A8B9CC?logo=c&logoColor=black&style=for-the-badge) | ![Shopify](https://img.shields.io/badge/-Shopify-7AB55C?logo=shopify&logoColor=white&style=for-the-badge)
 | | ![Tailwind CSS](https://img.shields.io/badge/-Tailwind%20CSS-06B6D4?logo=tailwindcss&logoColor=white&style=for-the-badge)
 
-[![GitHub Stats Dark](https://github-readme-stats-danielalyoshin.vercel.app/api?username=danielalyoshin&show_icons=true&theme=dark&bg_color=00000000&hide_border=true#gh-dark-mode-only)](https://github.com/anuraghazra/github-readme-stats#gh-dark-mode-only)
-[![Top Langs Dark](https://github-readme-stats-danielalyoshin.vercel.app/api/top-langs/?username=danielalyoshin&layout=compact&theme=dark&bg_color=00000000&hide_border=true&langs_count=10#gh-dark-mode-only)](https://github.com/anuraghazra/github-readme-stats#gh-dark-mode-only)
-[![GitHub Stats Light](https://github-readme-stats-danielalyoshin.vercel.app/api?username=danielalyoshin&show_icons=true&theme=default&bg_color=00000000&hide_border=true#gh-light-mode-only)](https://github.com/anuraghazra/github-readme-stats#gh-light-mode-only)
-[![Top Langs Light](https://github-readme-stats-danielalyoshin.vercel.app/api/top-langs/?username=danielalyoshin&layout=compact&theme=default&bg_color=00000000&hide_border=true&langs_count=10#gh-light-mode-only)](https://github.com/anuraghazra/github-readme-stats#gh-light-mode-only)
+[![GitHub Stats Dark](https://github-readme-stats.vercel.app/api?username=danielalyoshin&show_icons=true&theme=dark&bg_color=00000000&hide_border=true#gh-dark-mode-only)](https://github.com/anuraghazra/github-readme-stats#gh-dark-mode-only)
+[![Top Langs Dark](https://github-readme-stats.vercel.app/api/top-langs/?username=danielalyoshin&layout=compact&theme=dark&bg_color=00000000&hide_border=true&langs_count=10#gh-dark-mode-only)](https://github.com/anuraghazra/github-readme-stats#gh-dark-mode-only)
+[![GitHub Stats Light](https://github-readme-stats.vercel.app/api?username=danielalyoshin&show_icons=true&theme=default&bg_color=00000000&hide_border=true#gh-light-mode-only)](https://github.com/anuraghazra/github-readme-stats#gh-light-mode-only)
+[![Top Langs Light](https://github-readme-stats.vercel.app/api/top-langs/?username=danielalyoshin&layout=compact&theme=default&bg_color=00000000&hide_border=true&langs_count=10#gh-light-mode-only)](https://github.com/anuraghazra/github-readme-stats#gh-light-mode-only)
   
 </div>
