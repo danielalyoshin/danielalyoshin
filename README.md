@@ -8,8 +8,7 @@
 fun aboutMe(): List<String> {
     return listOf(
         "3rd-year Computer Science student at the University of Toronto " +
-        "specializing in Software Engineering.",
-        "Currently employed at Score Media and Gaming as an Automation Engineer."
+        "specializing in Software Engineering."
     )
 }
 ```
