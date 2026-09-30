@@ -27,7 +27,7 @@ My skills are split between software architecture and sales, so I'm as comfortab
 
 <h3><picture><source media="(prefers-color-scheme: dark)" srcset="assets/label-projects-dark.svg" /><img src="assets/label-projects-light.svg" alt="Projects" /></picture></h3>
 
-<picture><source media="(prefers-color-scheme: dark)" srcset="assets/sqlalchemy-d1-dark.svg" /><img align="left" width="64" height="64" src="assets/sqlalchemy-d1.svg" alt="sqlalchemy-d1" /></picture>
+<a href="https://github.com/sqlalchemy-cf-d1"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/sqlalchemy-d1-dark.svg" /><img align="left" width="64" height="64" src="assets/sqlalchemy-d1.svg" alt="sqlalchemy-cf-d1 on GitHub" /></picture></a>
 
 **Cloudflare D1 in Apache Superset**<br />
 Python · SQLAlchemy · Cloudflare D1 · Apache Superset
