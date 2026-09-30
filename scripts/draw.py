@@ -4,9 +4,10 @@
 The sqlalchemy-d1 logo tiles (assets/sqlalchemy-d1*.svg) are the owner's files, committed
 as provided; this script never writes them.
 
-Fonts are the site's own Archivo (width pinned at 110%, weight kept variable) and
-nothing else; each SVG embeds a small subset, because GitHub renders README images
-without access to web fonts. Needs fontTools and brotli:
+Fonts are the site's own: Archivo (width pinned at 110%, weight kept variable) for the
+hardware's prints, and VT323 for the links, which are set as the tube's on-screen links.
+Each SVG embeds a small subset, because GitHub renders README images without access to
+web fonts. Needs fontTools and brotli:
 
     pip install fonttools brotli
     python3 scripts/draw.py
@@ -22,6 +23,7 @@ from fontTools.varLib import instancer
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ASSETS = os.path.join(ROOT, "assets")
 SITE = os.path.expanduser("~/Projects/personal-site/node_modules/@fontsource-variable/archivo/files/archivo-latin-wdth-normal.woff2")
+OSD_FONT = os.path.expanduser("~/Projects/personal-site/node_modules/@fontsource/vt323/files/vt323-latin-400-normal.woff2")
 
 # personal-site/src/styles/tokens.css and src/components/studio/materials.ts
 SILK_HI, SILK, SILK_DIM = "#e9ebf1", "#b7bbc6", "#868b99"
@@ -34,19 +36,19 @@ SUPERSET, ABOUT = "#ff7a1a", "#61e8c6"
 # the site's tapes as (number, spine, label variant, accent): content/projects/*.ts, content/about.ts
 SUPERSET_D1 = ("01", "SUPERSET D1", "classic", SUPERSET)
 ABOUT_TAPE = ("06", "ABOUT", "studio", ABOUT)
-TAPES = (SUPERSET_D1, ABOUT_TAPE)
-PLAYING = ABOUT_TAPE  # the tape in the deck's slot
 # GitHub's own grounds, for prints that sit straight on the page
 GH = {"light": {"muted": "#57606a"}, "dark": {"muted": SILK_DIM}}
+# The tube's link ink is --osd-white. Off the tube a link sits on GitHub's page, so in light
+# it takes GitHub's own text ink, where white would vanish.
+OSD_INK = {"light": "#1f2328", "dark": "#ffffff"}
 
 CHARS = "".join(chr(c) for c in range(0x20, 0x7F)) + "–·"
 
 
-def _archivo():
-    font = instancer.instantiateVariableFont(TTFont(SITE), {"wdth": 110})
+def _embed(font, features=()):
     opts = subset.Options()
     opts.flavor = "woff2"
-    opts.layout_features = ["kern"]
+    opts.layout_features = list(features)
     sub = subset.Subsetter(opts)
     sub.populate(text=CHARS)
     sub.subset(font)
@@ -56,33 +58,36 @@ def _archivo():
     return base64.b64encode(buf.getvalue()).decode()
 
 
-FONT_FACE = "@font-face{font-family:'Archivo';font-weight:100 900;src:url(data:font/woff2;base64,%s) format('woff2')}" % _archivo()
+# (the @font-face, the family stack) for each face a print can be set in
+ARCHIVO = ("@font-face{font-family:'Archivo';font-weight:100 900;src:url(data:font/woff2;base64,%s) format('woff2')}"
+           % _embed(instancer.instantiateVariableFont(TTFont(SITE), {"wdth": 110}), ["kern"]),
+           "'Archivo',Arial,sans-serif")
+VT323 = ("@font-face{font-family:'VT323';src:url(data:font/woff2;base64,%s) format('woff2')}" % _embed(TTFont(OSD_FONT)),
+         "'VT323',ui-monospace,'Courier New',monospace")
 _METRICS = {w: instancer.instantiateVariableFont(TTFont(SITE), {"wdth": 110, "wght": w}) for w in (600, 800)}
+_METRICS["osd"] = TTFont(OSD_FONT)
 
 
 def text_width(s, size, weight=600, tracking=0.0):
-    """Advance width of a line as Chrome sets it: glyph advances plus tracking after every glyph."""
+    """Advance width of a line as Chrome sets it: glyph advances plus tracking after every glyph.
+    Weight "osd" measures VT323 instead of Archivo."""
     font = _METRICS[weight]
     cmap, hmtx, upm = font.getBestCmap(), font["hmtx"], font["head"].unitsPerEm
     return sum(hmtx[cmap[ord(c)]][0] for c in s) * size / upm + tracking * len(s)
 
 
-def svg(w, h, body, title, extra_css=""):
+def svg(w, h, body, title, extra_css="", face=ARCHIVO):
     return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}" width="{w}" height="{h}" role="img" aria-label="{title}">'
-            f"<title>{title}</title><style>{FONT_FACE}"
-            "text{font-family:'Archivo',Arial,sans-serif}.w400{font-weight:400}.w600{font-weight:600}.w800{font-weight:800}"
+            f"<title>{title}</title><style>{face[0]}"
+            f"text{{font-family:{face[1]}}}.w400{{font-weight:400}}.w600{{font-weight:600}}.w800{{font-weight:800}}"
             f"{extra_css}</style>{body}</svg>")
 
 
 # Drawn marks (The Drawn Mark Rule): nothing here is ever a typed glyph.
 def mark_arrow(x, y, s, color):
-    k = s / 16
-    return (f'<g transform="translate({x} {y}) scale({k})" fill="none" stroke="{color}" stroke-width="1.5" '
-            'stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 11.5 L11.5 4.5"/><path d="M5.5 4.5 H11.5 V10.5"/></g>')
-
-
-def mark_play(x, y, s, color):
-    return f'<path d="M{x} {y} L{x + s * 0.87} {y + s / 2} L{x} {y + s} Z" fill="{color}"/>'
+    """The site's outward-link mark (Icons.tsx, ExternalIcon): 1.5-unit strokes on a 16-unit box."""
+    return (f'<g transform="translate({x} {y}) scale({s / 16})" fill="none" stroke="{color}" stroke-width="1.5">'
+            '<path d="M4.25 11.75 11.5 4.5M6 4.5h5.5V10"/></g>')
 
 
 def mark_eject(x, y, s, color):
@@ -105,64 +110,28 @@ def keycap(x, y, w, h, radius=3):
             f'<rect x="{x}" y="{y + h - 4}" width="{w}" height="4" fill="{UNDER}"/>')
 
 
-def spine_flat(x, y, h, tape, w=None):
-    """A tape's label on a cassette spine lying on its side, as it shows in the deck's slot.
-    The label's natural width follows from its type; given a wider w, the colour block and VHS
-    keep to the far end, as on the upright label. Returns the drawing and the label's width."""
-    number, name, variant, accent = tape
-    studio = variant == "studio"
-    ground, ink = (STUDIO_LABEL, accent) if studio else (PAPER, LABEL_INK)
-    size = h * 0.6
-    base = y + h * 0.71
-    pad, blk = h * 0.5, h * 1.9
-    name_x = x + pad + text_width(number, size, 800) + h * 0.5
-    vhs = text_width("VHS", size * 0.62, 600)
-    tail = blk + h * 0.35 + vhs + pad * 0.7
-    natural = name_x + text_width(name, size, 800) + h * 0.6 + tail - x
-    w = w or natural
-    assert w >= natural - 1e-6, f"{name} no longer fits its label"
-    blk_x = x + w - tail
-    if studio:  # the shelf's two rules, kept level: turned with the label they read as a pause mark
-        marks = "".join(f'<rect x="{blk_x + blk * 0.12:.2f}" y="{y + h * at:.2f}" width="{blk * 0.76 * run:.2f}" height="{h * 0.07:.2f}" fill="{STUDIO_LABEL}"/>'
-                        for at, run in ((0.27, 1), (0.5, 0.7)))
-    else:
-        marks = "".join(f'<rect x="{blk_x + 3 + i * (blk - 6) / 5:.2f}" y="{y}" width="{(blk - 6) / 10:.2f}" height="{h}" fill="{LABEL_INK}"/>' for i in range(5))
-    return (f'<rect x="{x}" y="{y}" width="{w:.2f}" height="{h}" fill="{ground}"/>'
-            f'<text class="w800" x="{x + pad}" y="{base}" font-size="{size}" fill="{ink}">{number}</text>'
-            f'<text class="w800" x="{name_x:.2f}" y="{base}" font-size="{size}" fill="{ink}">{name}</text>'
-            f'<rect x="{blk_x:.2f}" y="{y}" width="{blk}" height="{h}" fill="{accent}"/>{marks}'
-            f'<text class="w600" x="{blk_x + blk + h * 0.35:.2f}" y="{base}" font-size="{size * 0.62}" fill="{STUDIO_INK if studio else LABEL_INK}">VHS</text>'), w
-
-
-# The status window's one authored moment: LOADING, then PLAY, as the deck does when a tape goes in.
-READOUT_CSS = (".ld{opacity:0;animation:ld 1.6s steps(1) backwards}.pl{animation:pl 1.6s steps(1) backwards}"
-               "@keyframes ld{0%,100%{opacity:1}}@keyframes pl{0%,100%{opacity:0}}"
-               "@media (prefers-reduced-motion:reduce){.ld,.pl{animation:none}}")
-
-
 def deck(compact=False):
-    """The AV-01 deck, head-on, on the studio table. The owner's name is the maker's mark;
-    the PLAYING tape (ABOUT, tape 06) is in the slot."""
+    """The AV-01 deck, head-on, on the studio table. The owner's name is the maker's mark.
+    No tape is loaded: the slot's flap hangs closed and the readout stands at STANDBY,
+    as the site's deck shows between tapes (studio/Player.tsx)."""
     if compact:
         W, H = 600, 508
         x0, x1, top, bot = 24, 576, 24, 460
         name_xy, name_size, role_y, role_size = (58, 94), 40, 126, 19.5
         bay = (56, 544, 154, 266)
-        tape_inset, label_h = 22, 34
         win = (56, 544, 288, 336)
         key = (318, 362, 226, 46)
         sound = (56, 362, 226, 46)
-        type_size, model = 20, (300, 438, 17)
+        type_size, model_y, model_size = 20, 438, 17
     else:
         W, H = 1000, 284
         x0, x1, top, bot = 52, 948, 36, 236
         name_xy, name_size, role_y, role_size = (88, 104), 32, 132, 15.5
-        bay = (440, 790, 70, 176)
-        tape_inset, label_h = 14, 26
-        win = (808, 924, 70, 110)
-        key = (812, 132, 108, 40)
+        bay = (440, 750, 70, 176)
+        win = (770, 924, 70, 110)
+        key = (774, 132, 146, 40)
         sound = (89, 162, 116, 40)
-        type_size, model = 15.5, (615, 212, 14.5)
+        type_size, model_y, model_size = 15.5, 212, 14.5
     b = []
     # the table the equipment stands on: top plane, front face, recessed pedestal
     ty = bot + 6
@@ -183,28 +152,23 @@ def deck(compact=False):
     assert name_xy[0] + text_width("DANIEL ALYOSHIN", name_size, 800, -name_size * 0.018) < bay[0] - 16 or compact, "the name runs into the bay"
     b.append(f'<text class="w800" x="{name_xy[0]}" y="{name_xy[1]}" font-size="{name_size}" letter-spacing="{-name_size * 0.018}" fill="{SILK_HI}">DANIEL ALYOSHIN</text>')
     b.append(f'<text class="w600" x="{name_xy[0] + 1}" y="{role_y}" font-size="{role_size}" letter-spacing="{role_size * 0.12}" fill="{SILK}">FORWARD DEPLOYED ENGINEER</text>')
-    # the bay: its door pushed in by the tape, the tape's spine out of the slot
+    # the slot, empty: its flap hangs closed in the opening, shaded where it hinges under the
+    # fascia, with the lit lip a tape pushes on near its foot (Player.tsx: player-flap)
     bx0, bx1, by0, by1 = bay
+    fx0, fy0, fw, fh = bx0 + 5, by0 + 5, bx1 - bx0 - 10, by1 - by0 - 10
     b.append(f'<rect x="{bx0}" y="{by0}" width="{bx1 - bx0}" height="{by1 - by0}" rx="3" fill="{RECESS}"/>')
-    b.append(f'<rect x="{bx0 + 10}" y="{by0 + 10}" width="{bx1 - bx0 - 20}" height="{label_h * 0.6}" fill="#232b34"/>')
-    b.append(f'<rect x="{bx0 + 10}" y="{by0 + 10 + label_h * 0.6}" width="{bx1 - bx0 - 20}" height="2" fill="{EDGE}"/>')
-    lw = max(spine_flat(0, 0, label_h, tape)[1] for tape in TAPES)  # one shell length: its label fits every spine
-    tw = lw + 20
-    assert tw <= bx1 - bx0 - 2 * tape_inset, "the tape's label no longer fits its bay"
-    tx0 = (bx0 + bx1 - tw) / 2
-    ty0 = by1 - 16 - label_h - 18
-    b.append(f'<rect x="{tx0:.2f}" y="{ty0}" width="{tw:.2f}" height="{label_h + 18}" rx="3" fill="{MOLDING}"/>')
-    b.append(f'<rect x="{tx0 + 3:.2f}" y="{ty0}" width="{tw - 6:.2f}" height="1" fill="#2b323b"/>')
-    b.append(spine_flat(tx0 + 10, ty0 + 9, label_h, PLAYING, lw)[0])
-    b.append(f'<text class="w600" x="{model[0]}" y="{model[1]}" text-anchor="middle" font-size="{model[2]}" letter-spacing="{model[2] * 0.12}" fill="{SILK_DIM}">AV–01 / VHS</text>')
+    b.append(f'<rect x="{fx0}" y="{fy0}" width="{fw}" height="{fh}" rx="2" fill="{UNDER}"/>')
+    b.append(f'<rect x="{fx0}" y="{fy0 + 3}" width="{fw}" height="{fh - 3}" rx="2" fill="{SHELL}"/>')
+    b.append(f'<rect x="{fx0 + fw * 0.065:.2f}" y="{fy0 + fh * 0.88 - 1:.2f}" width="{fw * 0.87:.2f}" height="2" fill="{EDGE}"/>')
+    b.append(f'<text class="w600" x="{(bx0 + bx1) / 2}" y="{model_y}" text-anchor="middle" font-size="{model_size}" letter-spacing="{model_size * 0.12}" fill="{SILK_DIM}">AV–01 / VHS</text>')
     # status window: transport state left, sound mark right
     wx0, wx1, wy0, wy1 = win
     mid = (wy0 + wy1) / 2
+    speaker = type_size * 1.15
+    assert wx0 + 12 + text_width("STANDBY", type_size, 600, type_size * 0.1) < wx1 - 12 - speaker, "STANDBY runs into the sound mark"
     b.append(f'<rect x="{wx0}" y="{wy0}" width="{wx1 - wx0}" height="{wy1 - wy0}" rx="2" fill="{WINDOW}"/>')
-    b.append(f'<g class="ld"><text class="w600" x="{wx0 + 12}" y="{mid + type_size * 0.36}" font-size="{type_size}" letter-spacing="{type_size * 0.1}" fill="{SILK_HI}">LOADING</text></g>')
-    b.append(f'<g class="pl">{mark_play(wx0 + 12, mid - type_size * 0.36, type_size * 0.72, SILK_HI)}'
-             f'<text class="w600" x="{wx0 + 12 + type_size * 1.05}" y="{mid + type_size * 0.36}" font-size="{type_size}" letter-spacing="{type_size * 0.1}" fill="{SILK_HI}">PLAY</text></g>')
-    b.append(f'<g class="pl">{mark_speaker_muted(wx1 - 12 - type_size * 1.15, mid - type_size * 0.58, type_size * 1.15, SILK_HI)}</g>')
+    b.append(f'<text class="w600" x="{wx0 + 12}" y="{mid + type_size * 0.36}" font-size="{type_size}" letter-spacing="{type_size * 0.1}" fill="{SILK_HI}">STANDBY</text>')
+    b.append(mark_speaker_muted(wx1 - 12 - speaker, mid - type_size * 0.58, speaker, SILK_HI))
     # the sound key: one printed label; sound state is the window's mark, not the key's
     sx, sy, sw, sh = sound
     b.append(keycap(sx, sy, sw, sh))
@@ -217,34 +181,32 @@ def deck(compact=False):
     start = kx + (kw - label - lead) / 2
     b.append(mark_eject(start, ky + kh / 2 - type_size * 0.42, type_size * 0.72, SILK_HI))
     b.append(f'<text class="w600" x="{start + lead}" y="{ky + kh / 2 + type_size * 0.3}" font-size="{type_size}" letter-spacing="{type_size * 0.1}" fill="{SILK_HI}">EJECT</text>')
-    return svg(W, H, "".join(b), "Daniel Alyoshin, forward deployed engineer", READOUT_CSS)
+    return svg(W, H, "".join(b), "Daniel Alyoshin, forward deployed engineer")
 
 
-def key_width(label, size=15):
-    return round(20 + text_width(label, size, 600, size * 0.12) + 14 + size * 1.1 + 18)
+def osd_link(label, title, theme, left=0, right=0):
+    """A link as the site's tube sets them at the foot of each tape (CRT.module.css, .links a):
+    uppercase VT323 at 20 in a 1px outline with 2px corners, 6/14 padding, 44 tall, ending in the
+    outward arrow at 0.7em after a 0.4em gap. Off the tube it takes the page's ink for the theme.
+    left/right are clear space drawn in, standing in for the site's 16px gap between links."""
+    size, h, pad = 20, 44, 14
+    ink = OSD_INK[theme]
+    tw = text_width(label, size, "osd")
+    bw = 1 + pad + tw + size * 0.4 + size * 0.7 + pad + 1
+    arrow = size * 0.7
+    body = (f'<rect x="{left + 0.5}" y="0.5" width="{bw - 1}" height="{h - 1}" rx="2" fill="none" stroke="{ink}"/>'
+            # VT323's capitals stand 0.56em, centred on the box
+            f'<text x="{left + 1 + pad}" y="{h / 2 + size * 0.28}" font-size="{size}" fill="{ink}">{label}</text>' +
+            mark_arrow(left + 1 + pad + tw + size * 0.4, (h - arrow) / 2, arrow, ink))
+    return svg(round(left + bw + right), h, body, title, face=VT323)
 
 
-def key(label, size=15, w=None):
-    """A link key: one printed label and the outward arrow, as on the site's contact links.
-    Given a width, the label sits left and the arrow at the right edge, so a row of keys matches."""
-    h = round(size * 3.6)
-    tw = text_width(label, size, 600, size * 0.12)
-    w = w or key_width(label, size)
-    arrow_x = w - 18 - size * 1.1 if w > key_width(label, size) else 22 + tw + 12
-    body = (keycap(3, 3, w - 6, h - 8) +
-            f'<text class="w600" x="22" y="{(h - 6) / 2 + size * 0.36 + 2}" font-size="{size}" letter-spacing="{size * 0.12}" fill="{SILK_HI}">{label}</text>' +
-            mark_arrow(arrow_x, (h - 6) / 2 - size * 0.55 + 2, size * 1.1, SILK_HI))
-    return svg(w, h, body, label), w
-
-
-def section_label(text, theme, play=False):
+def section_label(text, theme):
     """A silkscreen label printed on the page: uppercase Archivo 600, 0.12em tracking, dim ink."""
     size, h = 15, 24
     ink = GH[theme]["muted"]
-    lead = size * 1.05 if play else 0
-    w = round(lead + text_width(text, size, 600, size * 0.12) + 2)
-    body = (mark_play(1, h / 2 - size * 0.36, size * 0.72, ink) if play else "") + \
-        f'<text class="w600" x="{lead}" y="{h / 2 + size * 0.36}" font-size="{size}" letter-spacing="{size * 0.12}" fill="{ink}">{text}</text>'
+    w = round(text_width(text, size, 600, size * 0.12) + 2)
+    body = f'<text class="w600" x="0" y="{h / 2 + size * 0.36}" font-size="{size}" letter-spacing="{size * 0.12}" fill="{ink}">{text}</text>'
     return svg(w, h, body, text.title()), w
 
 
@@ -306,15 +268,18 @@ def main():
     out["deck.svg"] = deck()
     out["deck-compact.svg"] = deck(compact=True)
     out["shelf.svg"] = shelf()
-    contact = (("linkedin", "LINKEDIN"), ("email", "EMAIL"), ("site", "ALYOSHIN.DEV"))
-    row = max(key_width(label) for _, label in contact)
-    for name, label in contact:
-        out[f"key-{name}.svg"], _ = key(label, 15, row)
-    for name, label in (("pypi", "PYPI"), ("dialect-pr", "DIALECT PR"), ("superset-pr", "SUPERSET PR"), ("packages", "PACKAGES")):
-        out[f"key-{name}.svg"], _ = key(label, 13)
-    for slug, text, play in (("now-playing", "NOW PLAYING", True), ("projects", "PROJECTS", False), ("stack", "STACK", False)):
+    # the contact row is centred under the deck, so its clear space splits either side;
+    # a project's row starts flush with its text, so its clear space all falls after
+    contact = (("linkedin", "LINKEDIN", "LinkedIn"), ("email", "EMAIL", "Email"), ("site", "ALYOSHIN.DEV", "alyoshin.dev"))
+    project = (("pypi", "PYPI", "PyPI"), ("dialect-pr", "DIALECT PR", "Dialect PR"),
+               ("superset-pr", "SUPERSET PR", "Superset PR"), ("packages", "PACKAGES", "Packages"))
+    for row, left, right in ((contact, 6, 6), (project, 0, 12)):
+        for slug, label, title in row:
+            for theme in ("light", "dark"):
+                out[f"link-{slug}-{theme}.svg"] = osd_link(label, title, theme, left, right)
+    for slug, text in (("about", "ABOUT"), ("projects", "PROJECTS"), ("stack", "STACK")):
         for theme in ("light", "dark"):
-            out[f"label-{slug}-{theme}.svg"], _ = section_label(text, theme, play)
+            out[f"label-{slug}-{theme}.svg"], _ = section_label(text, theme)
     for name, content in out.items():
         with open(os.path.join(ASSETS, name), "w") as f:
             f.write(content)
