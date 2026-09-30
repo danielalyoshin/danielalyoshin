@@ -47,5 +47,5 @@ Python · C/C++ · Kotlin/Java · TypeScript · LLMs and AI · Docker · Kuberne
 
 <p align="center">
   <a href="https://alyoshin.dev"><img src="assets/shelf.svg" width="560" alt="A tape shelf holding SUPERSET D1, four blank tapes, and About. Links to alyoshin.dev." /></a><br />
-  <sub>The full studio: alyoshin.dev</sub>
+  <sub>The full studio: <a href="https://alyoshin.dev">alyoshin.dev</a></sub>
 </p>
