@@ -39,7 +39,7 @@ A Windows app I built that gives every app on your PC the mic sound you set up i
 <a href="https://getknobs.app"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/link-getknobs-dark.svg" /><img src="assets/link-getknobs-light.svg" alt="getknobs.app" /></picture></a>
 <a href="https://github.com/danielalyoshin/knobs"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/link-knobs-source-dark.svg" /><img src="assets/link-knobs-source-light.svg" alt="knobs source on GitHub" /></picture></a>
 
-<a href="https://github.com/sqlalchemy-cf-d1"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/sqlalchemy-d1-dark.svg" /><img align="left" width="64" height="64" src="assets/sqlalchemy-d1.svg" alt="sqlalchemy-cf-d1 on GitHub" /></picture></a>
+<a href="https://github.com/sqlalchemy-cf-d1"><img align="left" width="64" height="64" src="assets/sqlalchemy-d1.svg" alt="sqlalchemy-cf-d1 on GitHub" /></a>
 
 **Cloudflare D1 in Apache Superset**<br />
 Python · SQLAlchemy · Cloudflare D1 · Apache Superset

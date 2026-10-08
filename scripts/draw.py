@@ -1,9 +1,9 @@
 """Draws the profile README's hardware as SVG, in the Midnight Studio vocabulary of
 ~/Projects/personal-site (tokens.css, studio/materials.ts, DESIGN.md).
 
-The sqlalchemy-d1 logo tiles (assets/sqlalchemy-d1*.svg) and the knobs app icon
-(assets/knobs-app-icon.svg, the master from danielalyoshin/knobs, assets/) are the owner's
-files, committed as provided; this script never writes them.
+The knobs app icon (assets/knobs-app-icon.svg, the master from danielalyoshin/knobs,
+assets/) is the owner's file, committed as provided; this script never writes it. The
+sqlalchemy-d1 mark is redrawn here from the owner's own geometry (logo.svg).
 
 Fonts are the site's own: Archivo (width pinned at 110%, weight kept variable) for the
 hardware's prints, and VT323 for the links, which are set as the tube's on-screen links.
@@ -34,6 +34,8 @@ REC_RED = "#ff3b30"
 # cassette label data (studio/Tape.tsx; content/projects/*.ts)
 PAPER, LABEL_INK, STUDIO_LABEL, STUDIO_INK = "#deded5", "#192026", "#232931", "#dfe6e1"
 KNOBS, SUPERSET, ABOUT = "#e5484d", "#ff7a1a", "#61e8c6"
+# the sqlalchemy-d1 mark's own orange (its logo files), never Superset Orange
+LOGO_ORANGE = "#f38020"
 # the site's tapes as (number, spine, label variant, accent): content/projects/*.ts, content/about.ts.
 # A tape's number is its slot on the site's rack.
 KNOBS_TAPE = ("01", "KNOBS", "rental", KNOBS)
@@ -80,10 +82,11 @@ def text_width(s, size, weight=600, tracking=0.0):
 
 
 def svg(w, h, body, title, extra_css="", face=ARCHIVO):
+    """face=None embeds no font, for a drawing that prints nothing."""
+    style = (f"<style>{face[0]}text{{font-family:{face[1]}}}.w400{{font-weight:400}}.w600{{font-weight:600}}"
+             f".w800{{font-weight:800}}{extra_css}</style>") if face else ""
     return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}" width="{w}" height="{h}" role="img" aria-label="{title}">'
-            f"<title>{title}</title><style>{face[0]}"
-            f"text{{font-family:{face[1]}}}.w400{{font-weight:400}}.w600{{font-weight:600}}.w800{{font-weight:800}}"
-            f"{extra_css}</style>{body}</svg>")
+            f"<title>{title}</title>{style}{body}</svg>")
 
 
 # Drawn marks (The Drawn Mark Rule): nothing here is ever a typed glyph.
@@ -187,6 +190,25 @@ def deck(compact=False):
     return svg(W, H, "".join(b), "Daniel Alyoshin, forward deployed engineer")
 
 
+def d1_mark():
+    """The sqlalchemy-d1 mark bare, as the org's avatar has it: the orange cloud with the flask
+    as a true cutout, on no tile, like the knob beside it under Projects. The geometry is the
+    owner's (logo.svg): a cloud of three circles and a bar, 44 by 31 about (33, 31.5). It is set
+    60 wide, the knob's width less the knob's shading, and centred as the knob is, so the two
+    marks weigh alike. One file serves both themes: the cutout shows the page."""
+    S, s = 64, 60 / 44
+    flask = ('<g transform="translate(32.8 31.9) scale(0.9) translate(-32.5 -31.5)">'
+             '<path d="M30.1 23 V29 L23.3 40.2 Q22.6 41.6 24.2 41.6 H40.8 Q42.4 41.6 41.7 40.2 L34.9 29 V23 Z" '
+             'fill="#000" stroke="#000" stroke-width="2" stroke-linejoin="round"/>'
+             '<rect x="28" y="20.4" width="9" height="3.2" rx="1.6" fill="#000"/></g>')
+    body = (f'<defs><mask id="f" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64">'
+            f'<rect width="64" height="64" fill="#fff"/>{flask}</mask></defs>'
+            f'<g transform="translate({S / 2} {S / 2}) scale({s:.4f}) translate(-33 -31.5)">'
+            f'<g fill="{LOGO_ORANGE}" mask="url(#f)"><circle cx="20" cy="38" r="9"/><circle cx="32" cy="29" r="13"/>'
+            '<circle cx="45" cy="37" r="10"/><rect x="20" y="36" width="25" height="11"/></g></g>')
+    return svg(S, S, body, "sqlalchemy-d1", face=None)
+
+
 def osd_link(label, title, theme, left=0, right=0):
     """A link as the site's tube sets them at the foot of each tape (CRT.module.css, .links a):
     uppercase VT323 at 20 in a 1px outline with 2px corners, 6/14 padding, 44 tall, ending in the
@@ -273,6 +295,7 @@ def main():
     out["deck.svg"] = deck()
     out["deck-compact.svg"] = deck(compact=True)
     out["shelf.svg"] = shelf()
+    out["sqlalchemy-d1.svg"] = d1_mark()
     # the contact row is centred under the deck, so its clear space splits either side;
     # a project's row starts flush with its text, so its clear space all falls after
     contact = (("linkedin", "LINKEDIN", "LinkedIn"), ("email", "EMAIL", "Email"), ("site", "ALYOSHIN.DEV", "alyoshin.dev"))
