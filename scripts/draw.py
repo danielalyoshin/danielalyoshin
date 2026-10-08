@@ -1,8 +1,9 @@
 """Draws the profile README's hardware as SVG, in the Midnight Studio vocabulary of
 ~/Projects/personal-site (tokens.css, studio/materials.ts, DESIGN.md).
 
-The sqlalchemy-d1 logo tiles (assets/sqlalchemy-d1*.svg) are the owner's files, committed
-as provided; this script never writes them.
+The sqlalchemy-d1 logo tiles (assets/sqlalchemy-d1*.svg) and the knobs app icon
+(assets/knobs-app-icon.svg, the master from danielalyoshin/knobs, assets/) are the owner's
+files, committed as provided; this script never writes them.
 
 Fonts are the site's own: Archivo (width pinned at 110%, weight kept variable) for the
 hardware's prints, and VT323 for the links, which are set as the tube's on-screen links.
@@ -32,9 +33,11 @@ TABLETOP, UNDER, MOLDING, WINDOW = "#59636f", "#2a323b", "#1a1f25", "#0f141a"
 REC_RED = "#ff3b30"
 # cassette label data (studio/Tape.tsx; content/projects/*.ts)
 PAPER, LABEL_INK, STUDIO_LABEL, STUDIO_INK = "#deded5", "#192026", "#232931", "#dfe6e1"
-SUPERSET, ABOUT = "#ff7a1a", "#61e8c6"
-# the site's tapes as (number, spine, label variant, accent): content/projects/*.ts, content/about.ts
-SUPERSET_D1 = ("01", "SUPERSET D1", "classic", SUPERSET)
+KNOBS, SUPERSET, ABOUT = "#e5484d", "#ff7a1a", "#61e8c6"
+# the site's tapes as (number, spine, label variant, accent): content/projects/*.ts, content/about.ts.
+# A tape's number is its slot on the site's rack.
+KNOBS_TAPE = ("01", "KNOBS", "rental", KNOBS)
+SUPERSET_D1 = ("02", "SUPERSET D1", "classic", SUPERSET)
 ABOUT_TAPE = ("06", "ABOUT", "studio", ABOUT)
 # GitHub's own grounds, for prints that sit straight on the page
 GH = {"light": {"muted": "#57606a"}, "dark": {"muted": SILK_DIM}}
@@ -211,7 +214,8 @@ def section_label(text, theme):
 
 
 def shelf():
-    """The archive holder with the site's six slots: tape 01, four blank tapes, and the About tape."""
+    """The archive holder with the site's six slots, in the site's order: tapes 01 and 02,
+    three blank tapes, and the About tape."""
     W, H, crop = 560, 292, 44
     tw, th, x_start, gap, base = 54, 236, 62, 20.4, 286
     b = [f'<defs><filter id="s" x="-10%" y="-300%" width="120%" height="700%"><feGaussianBlur stdDeviation="5"/></filter></defs>',
@@ -221,7 +225,7 @@ def shelf():
          f'<path d="M538 {base + 20} V112 L510 96 V{base + 20} Z" fill="{SHELL}"/>',
          f'<path d="M50 96 L22 112" stroke="{EDGE}" stroke-width="2"/><path d="M510 96 L538 112" stroke="{EDGE}" stroke-width="2"/>',
          f'<rect x="50" y="118" width="460" height="{base - 118}" fill="#1b222a"/>']
-    tapes = [SUPERSET_D1, None, None, None, None, ABOUT_TAPE]
+    tapes = [KNOBS_TAPE, SUPERSET_D1, None, None, None, ABOUT_TAPE]
     for i, tape in enumerate(tapes):
         x = x_start + i * (tw + gap)
         y = base - th
@@ -236,7 +240,8 @@ def shelf():
         number, name, variant, accent = tape
         studio = variant == "studio"
         lx, ly, lw, lh = x + 6, y + 8, tw - 12, th - 16
-        ground, ink = (STUDIO_LABEL, accent) if studio else (PAPER, LABEL_INK)
+        # a rental label is printed on the accent itself, in label ink (studio/Tape.tsx)
+        ground, ink = {"studio": (STUDIO_LABEL, accent), "classic": (PAPER, LABEL_INK), "rental": (accent, LABEL_INK)}[variant]
         b.append(f'<rect x="{lx}" y="{ly}" width="{lw}" height="{lh}" fill="{ground}"/>')
         b.append(f'<rect x="{lx + 4}" y="{ly + 5}" width="{lw - 8}" height="1.6" fill="{ink}"/>')
         b.append(f'<text class="w800" x="{lx + 5}" y="{ly + 23}" font-size="15" fill="{ink}">{number}</text>')
@@ -259,7 +264,7 @@ def shelf():
         b.append(f'<rect x="{px}" y="{base + 20}" width="40" height="6" rx="1.5" fill="{RUBBER}"/>')
     b[0] = b[0] + f'<g transform="translate(0 {-crop})">'
     b.append("</g>")
-    return svg(W, H, "".join(b), "The tape shelf: SUPERSET D1, four blank tapes, and About")
+    return svg(W, H, "".join(b), "The tape shelf: KNOBS, SUPERSET D1, three blank tapes, and About")
 
 
 def main():
@@ -271,9 +276,10 @@ def main():
     # the contact row is centred under the deck, so its clear space splits either side;
     # a project's row starts flush with its text, so its clear space all falls after
     contact = (("linkedin", "LINKEDIN", "LinkedIn"), ("email", "EMAIL", "Email"), ("site", "ALYOSHIN.DEV", "alyoshin.dev"))
-    project = (("pypi", "PYPI", "PyPI"), ("dialect-pr", "DIALECT PR", "Dialect PR"),
-               ("superset-pr", "SUPERSET PR", "Superset PR"), ("packages", "PACKAGES", "Packages"))
-    for row, left, right in ((contact, 6, 6), (project, 0, 12)):
+    knobs = (("getknobs", "GETKNOBS.APP", "getknobs.app"), ("knobs-source", "SOURCE", "Source"))
+    superset = (("pypi", "PYPI", "PyPI"), ("dialect-pr", "DIALECT PR", "Dialect PR"),
+                ("superset-pr", "SUPERSET PR", "Superset PR"), ("packages", "PACKAGES", "Packages"))
+    for row, left, right in ((contact, 6, 6), (knobs, 0, 12), (superset, 0, 12)):
         for slug, label, title in row:
             for theme in ("light", "dark"):
                 out[f"link-{slug}-{theme}.svg"] = osd_link(label, title, theme, left, right)
