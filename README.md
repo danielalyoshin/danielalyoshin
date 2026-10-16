@@ -27,14 +27,14 @@ My skills are split between software architecture and sales, so I'm as comfortab
 
 <h3><picture><source media="(prefers-color-scheme: dark)" srcset="assets/label-projects-dark.svg" /><img src="assets/label-projects-light.svg" alt="Projects" /></picture></h3>
 
-<a href="https://getknobs.app"><img align="left" width="64" height="64" src="assets/knobs-app-icon.svg" alt="knobs at getknobs.app" /></a>
+<a href="https://getknobs.app"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/knobs-mark-light.svg" /><img align="left" width="64" height="64" src="assets/knobs-mark-dark.svg" alt="knobs at getknobs.app" /></picture></a>
 
 **knobs**<br />
 C++ · libobs · OBS Studio · Windows
 
 <br clear="left" />
 
-A Windows app I built that gives every app on your PC the mic sound you set up in OBS Studio. It uses OBS's own audio code and reads your settings from OBS, so your mic sounds exactly as it does there, bit for bit. knobs is an independent project, not affiliated with or endorsed by the OBS Project.
+A Windows app I built that gives every app on your PC the mic sound you set up in OBS Studio. It uses OBS's own audio code and reads your settings from OBS, so your mic sounds exactly as it does there, bit for bit. It also runs VST plugins and NVIDIA's noise removal, uses a fraction of the memory and CPU that OBS does, and keeps running while OBS is open. knobs is an independent project, not affiliated with the OBS Project.
 
 <a href="https://getknobs.app"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/link-getknobs-dark.svg" /><img src="assets/link-getknobs-light.svg" alt="getknobs.app" /></picture></a>
 <a href="https://github.com/danielalyoshin/knobs"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/link-knobs-source-dark.svg" /><img src="assets/link-knobs-source-light.svg" alt="knobs source on GitHub" /></picture></a>

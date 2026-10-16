@@ -1,9 +1,10 @@
 """Draws the profile README's hardware as SVG, in the Midnight Studio vocabulary of
 ~/Projects/personal-site (tokens.css, studio/materials.ts, DESIGN.md).
 
-The knobs app icon (assets/knobs-app-icon.svg, the master from danielalyoshin/knobs,
-assets/) is the owner's file, committed as provided; this script never writes it. The
-sqlalchemy-d1 mark is redrawn here from the owner's own geometry (logo.svg).
+The knobs mark (assets/knobs-mark-light.svg and knobs-mark-dark.svg, the masters from
+danielalyoshin/knobs-brand, logo/svg/) is the owner's file, committed as provided; this
+script never writes it. The sqlalchemy-d1 mark is redrawn here from the owner's own
+geometry (logo.svg).
 
 Fonts are the site's own: Archivo (width pinned at 110%, weight kept variable) for the
 hardware's prints, and VT323 for the links, which are set as the tube's on-screen links.
@@ -33,7 +34,8 @@ TABLETOP, UNDER, MOLDING, WINDOW = "#59636f", "#2a323b", "#1a1f25", "#0f141a"
 REC_RED = "#ff3b30"
 # cassette label data (studio/Tape.tsx; content/projects/*.ts)
 PAPER, LABEL_INK, STUDIO_LABEL, STUDIO_INK = "#deded5", "#192026", "#232931", "#dfe6e1"
-KNOBS, SUPERSET, ABOUT = "#e5484d", "#ff7a1a", "#61e8c6"
+# KNOBS is cap red, the knobs brand's one red (knobs-brand tokens: `action`)
+KNOBS, SUPERSET, ABOUT = "#df695e", "#ff7a1a", "#61e8c6"
 # the sqlalchemy-d1 mark's own orange (its logo files), never Superset Orange
 LOGO_ORANGE = "#f38020"
 # the site's tapes as (number, spine, label variant, accent): content/projects/*.ts, content/about.ts.
@@ -192,10 +194,9 @@ def deck(compact=False):
 
 def d1_mark():
     """The sqlalchemy-d1 mark bare, as the org's avatar has it: the orange cloud with the flask
-    as a true cutout, on no tile, like the knob beside it under Projects. The geometry is the
-    owner's (logo.svg): a cloud of three circles and a bar, 44 by 31 about (33, 31.5). It is set
-    60 wide, the knob's width less the knob's shading, and centred as the knob is, so the two
-    marks weigh alike. One file serves both themes: the cutout shows the page."""
+    as a true cutout, on no tile, like the knobs mark above it under Projects. The geometry is
+    the owner's (logo.svg): a cloud of three circles and a bar, 44 by 31 about (33, 31.5), set
+    60 wide and centred in its square. One file serves both themes: the cutout shows the page."""
     S, s = 64, 60 / 44
     flask = ('<g transform="translate(32.8 31.9) scale(0.9) translate(-32.5 -31.5)">'
              '<path d="M30.1 23 V29 L23.3 40.2 Q22.6 41.6 24.2 41.6 H40.8 Q42.4 41.6 41.7 40.2 L34.9 29 V23 Z" '
